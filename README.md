@@ -1,4 +1,4 @@
-# Speech-to-Speech Unity LLM - Myungin Lee
+# Speech-to-Speech Unity LLM - FINAL REPO
 ## Authorization Requirement
 Unity-based Speech-to-Speech LLM template.
 
