@@ -13,7 +13,7 @@ namespace LLMUnitySamples
 
         public static string Weather()
         {
-            string[] weather = new string[]{"sunny", "rainy", "cloudy", "snowy"};
+            string[] weather = new string[] { "sunny", "rainy", "cloudy", "snowy" };
             return "The weather is " + weather[random.Next(weather.Length)];
         }
 
@@ -24,7 +24,7 @@ namespace LLMUnitySamples
 
         public static string Emotion()
         {
-            string[] emotion = new string[]{"happy", "sad", "exhilarated", "ok"};
+            string[] emotion = new string[] { "happy", "sad", "exhilarated", "ok" };
             return "I am feeling " + emotion[random.Next(emotion.Length)];
         }
     }
@@ -44,9 +44,7 @@ namespace LLMUnitySamples
 
         string[] GetFunctionNames()
         {
-            List<string> functionNames = new List<string>();
-            foreach (var function in typeof(Functions).GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)) functionNames.Add(function.Name);
-            return functionNames.ToArray();
+            return new string[] { "NextQuestion", "AnswerQuestion", "RestartGame" };
         }
 
         string MultipleChoiceGrammar()
@@ -54,29 +52,44 @@ namespace LLMUnitySamples
             return "root ::= (\"" + string.Join("\" | \"", GetFunctionNames()) + "\")";
         }
 
-        string ConstructPrompt(string message)
-        {
-            string prompt = "Which of the following choices matches best the input?\n\n";
-            prompt += "Input:" + message + "\n\n";
-            prompt += "Choices:\n";
-            foreach(string functionName in GetFunctionNames()) prompt += $"- {functionName}\n";
-            prompt += "\nAnswer directly with the choice";
-            return prompt;
-        }
+string ConstructPrompt(string message)
+{
+    return $"You are in a trivia game. The player input is below.\n" +
+           "If it's a number (1, 2, etc.), call AnswerQuestion with that input.\n" +
+           "Otherwise, just call NextQuestion to start or move forward.\n\n" +
+           $"Player Input: {message}";
+}
 
-        string CallFunction(string functionName)
-        {
-            return (string) typeof(Functions).GetMethod(functionName).Invoke(null, null);
-        }
+string CallFunction(string functionName, string input = null)
+{
+    var method = typeof(TriviaGame).GetMethod(functionName);
+    if (method == null) return "Unknown function.";
+    if (method.GetParameters().Length == 0)
+        return (string)method.Invoke(null, null);
+    else
+        return (string)method.Invoke(null, new object[] { input });
+}
 
-        async void onInputFieldSubmit(string message)
-        {
-            playerText.interactable = false;
-            string functionName = await llmCharacter.Chat(ConstructPrompt(message));
-            string result = CallFunction(functionName);
-            AIText.text = $"Calling {functionName}\n{result}";
-            playerText.interactable = true;
-        }
+async void onInputFieldSubmit(string message)
+{
+    playerText.interactable = false;
+
+    string functionName = await llmCharacter.Chat(ConstructPrompt(message));
+
+    string result;
+    if (functionName.StartsWith("AnswerQuestion"))
+    {
+        string answer = message;
+        result = CallFunction("AnswerQuestion", answer);
+    }
+    else
+    {
+        result = CallFunction(functionName);
+    }
+
+    AIText.text = result;
+    playerText.interactable = true;
+}
 
         public void CancelRequests()
         {
