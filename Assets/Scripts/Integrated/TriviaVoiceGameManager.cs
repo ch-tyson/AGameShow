@@ -16,7 +16,8 @@ public class TriviaVoiceGameManager : MonoBehaviour
         transcript.OnNewPlayerResponse += HandlePlayerInput;
 
         // Limit what the LLM can return as valid functions
-        llmCharacter.grammarString = null;
+        llmCharacter.grammarString = null
+        ;
     }
 
     private void HandlePlayerInput(string playerMessage)
