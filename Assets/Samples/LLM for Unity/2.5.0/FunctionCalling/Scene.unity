@@ -261,7 +261,7 @@ MonoBehaviour:
   - {fileID: 799650617}
   playerInput: {fileID: 1966107897}
   aiText: {fileID: 562686613}
-  audioSource: {fileID: 0}
+  audioSource: {fileID: 107963749}
   correctSound: {fileID: 8300000, guid: 2707e9f35d5cad346ba4f6fec26bb87e, type: 3}
   incorrectSound: {fileID: 8300000, guid: d2418ee27080aec49b0a1cb73d0c644b, type: 3}
 --- !u!82 &107963748
@@ -276,7 +276,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 2707e9f35d5cad346ba4f6fec26bb87e, type: 3}
   m_Resource: {fileID: 8300000, guid: 2707e9f35d5cad346ba4f6fec26bb87e, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -373,7 +373,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: d2418ee27080aec49b0a1cb73d0c644b, type: 3}
   m_Resource: {fileID: 8300000, guid: d2418ee27080aec49b0a1cb73d0c644b, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
