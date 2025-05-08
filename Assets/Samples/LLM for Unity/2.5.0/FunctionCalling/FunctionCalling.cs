@@ -20,8 +20,9 @@ namespace LLMUnitySamples
         public AudioClip incorrectSound;
         public CameraController cameraController;
         public AudioClip questionAudio;
+        public Animate hostAnimator;
 
-        void Start()
+        public void StartGameShow()
         {
             playerInput.onSubmit.AddListener(OnPlayerSubmit);
             playerInput.Select();
@@ -63,6 +64,14 @@ namespace LLMUnitySamples
             ColorBlockPanels(correctIndex, selectedIndex);
             if (audioSource != null)
                 audioSource.PlayOneShot(isCorrect ? correctSound : incorrectSound);
+
+            if (hostAnimator != null)
+            {
+                if (isCorrect)
+                    hostAnimator.TriggerHapp();
+                else
+                    hostAnimator.TriggerDiss();
+            }
 
             StartCoroutine(HandleCameraAndNextQuestion());
         }

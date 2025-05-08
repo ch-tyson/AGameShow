@@ -3,29 +3,27 @@ using UnityEngine;
 public class Animate : MonoBehaviour
 {
     private Animator mAnimator;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         mAnimator = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void TriggerHapp()
     {
-        if(mAnimator != null)
-        {
-            if(Input.GetKeyDown(KeyCode.H))
-            {
-                mAnimator.SetTrigger("TrigHapp");
-            }
-            if(Input.GetKeyDown(KeyCode.I))
-            {
-                mAnimator.SetTrigger("TrigIdle");
-            }
-            if(Input.GetKeyDown(KeyCode.D))
-            {
-                mAnimator.SetTrigger("TrigDiss");
-            }
-        }
+        if (mAnimator != null)
+            mAnimator.SetTrigger("TrigHapp");
+    }
+
+    public void TriggerIdle()
+    {
+        if (mAnimator != null)
+            mAnimator.SetTrigger("TrigIdle");
+    }
+
+    public void TriggerDiss()
+    {
+        if (mAnimator != null)
+            mAnimator.SetTrigger("TrigDiss");
     }
 }
