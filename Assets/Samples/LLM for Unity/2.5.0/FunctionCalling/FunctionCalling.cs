@@ -12,11 +12,14 @@ namespace LLMUnitySamples
         public Text[] answerTexts;        // AnswerA to AnswerD
         public Image[] answerPanels;      // PanelA to PanelD
         public InputField playerInput;
+        public AudioSource dialogueTypingSource;
         public Text aiText;
-
+        public float textSpeed = 0.01f;
         public AudioSource audioSource;
         public AudioClip correctSound;
         public AudioClip incorrectSound;
+        public CameraController cameraController;
+        public AudioClip questionAudio;
 
         void Start()
         {
@@ -38,22 +41,45 @@ namespace LLMUnitySamples
         {
             Debug.Log($"Player input: {input}");
 
+            var q = TriviaGame.GetCurrentQuestion(); // capture before advancing !IMPORTANT
             bool isCorrect = TriviaGame.EvaluateAnswer(input, out int correctIndex, out int selectedIndex, out string feedback);
 
-            Debug.Log($"Evaluated answer — Correct: {isCorrect}, Selected: {selectedIndex}, CorrectIndex: {correctIndex}");
+            string prompt = $"You are a sarcastic game show host. Here is the current question and its options:\n\n" +
+                                        $"Q: {q?.questionText}\n" +
+                                        $"A: {string.Join(", ", q?.options)}\n\n" +
+                                        $"The player answered: \"{input}\".\n" +
+                                        $"Result is:\n\"{feedback}\"\n" +
+                                        $"Respond concisely and appropriately based off the feedback, 2 sentences max.";
 
-            // Game feedback
+            string hostReply = await llmCharacter.Chat(prompt);
+            string cleanedReply = ExtractFinalFeedback(hostReply);
+            StartCoroutine(TypeText(cleanedReply));
+
+            // play answer feedback
+            if (audioSource != null && audioSource.clip == questionAudio && audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
             ColorBlockPanels(correctIndex, selectedIndex);
             if (audioSource != null)
                 audioSource.PlayOneShot(isCorrect ? correctSound : incorrectSound);
 
-            // Send to LLM for conversational reaction
-            string prompt = $"The player answered: \"{input}\".\nYour response as the host should match whether it's right or wrong.\n" +
-                            $"\"{feedback}\"";
-            string hostReply = await llmCharacter.Chat(prompt);
-            aiText.text = hostReply;
+            StartCoroutine(HandleCameraAndNextQuestion());
+        }
 
-            StartCoroutine(NextQuestionAfterDelay());
+        string ExtractFinalFeedback(string response)
+        {
+            if (string.IsNullOrWhiteSpace(response)) return "";
+
+            if (response.Contains("</think>"))
+                return response.Substring(response.LastIndexOf("</think>") + 7).Trim();
+
+            var lines = response.Split('\n');
+            for (int i = lines.Length - 1; i >= 0; i--)
+                if (!string.IsNullOrWhiteSpace(lines[i]))
+                    return lines[i].Trim();
+
+            return response.Trim();
         }
 
         IEnumerator NextQuestionAfterDelay()
@@ -67,6 +93,7 @@ namespace LLMUnitySamples
         void DisplayQuestion()
         {
             var question = TriviaGame.GetCurrentQuestion();
+
             if (question == null)
             {
                 questionText.text = "Game Over!";
@@ -77,14 +104,12 @@ namespace LLMUnitySamples
             questionText.text = question.Value.questionText;
 
             for (int i = 0; i < answerTexts.Length; i++)
-            {
-                if (i < question.Value.options.Length)
-                    answerTexts[i].text = question.Value.options[i];
-                else
-                    answerTexts[i].text = "";
-            }
-        }
+                answerTexts[i].text = i < question.Value.options.Length ? question.Value.options[i] : "";
 
+            if (audioSource != null && questionAudio != null)
+                audioSource.clip = questionAudio;
+            audioSource.Play();
+        }
 
         void ColorBlockPanels(int correctIndex, int selectedIndex)
         {
@@ -106,6 +131,45 @@ namespace LLMUnitySamples
         {
             foreach (var panel in answerPanels)
                 panel.color = new Color(0.8f, 0.8f, 0.8f, 0.5f); // reset
+        }
+
+        IEnumerator HandleCameraAndNextQuestion()
+        {
+            yield return new WaitForSeconds(1f); // wait after feedback
+
+            cameraController?.MoveToThinking();
+
+            yield return new WaitForSeconds(8f); // stay in thinking view
+
+            cameraController?.MoveToDefault();
+
+            yield return new WaitForSeconds(0.5f); // pause for polish
+
+            ResetPanelColors();
+            DisplayQuestion();
+            playerInput.interactable = true;
+            playerInput.Select();
+        }
+
+        IEnumerator TypeText(string message)
+        {
+            aiText.text = "";
+
+            if (dialogueTypingSource != null && dialogueTypingSource.clip != null)
+            {
+                dialogueTypingSource.Play();
+            }
+
+            foreach (char c in message)
+            {
+                aiText.text += c;
+                yield return new WaitForSeconds(textSpeed);
+            }
+
+            if (dialogueTypingSource != null && dialogueTypingSource.isPlaying)
+            {
+                dialogueTypingSource.Stop();
+            }
         }
     }
 }
