@@ -21,6 +21,7 @@ namespace LLMUnitySamples
         public CameraController cameraController;
         public AudioClip questionAudio;
         public Animate hostAnimator;
+        public AudioClip victorySound;
 
         public void StartGameShow()
         {
@@ -105,11 +106,16 @@ namespace LLMUnitySamples
 
             if (question == null)
             {
-                questionText.text = "Game Over!";
-                foreach (var text in answerTexts) text.text = "";
+                questionText.text = "You've conquered the chaos. nice:)";
+
+                foreach (var text in answerTexts)
+                    text.text = "";
+
+                if (audioSource != null && victorySound != null)
+                    audioSource.PlayOneShot(victorySound);
+
                 return;
             }
-
             questionText.text = question.Value.questionText;
 
             for (int i = 0; i < answerTexts.Length; i++)

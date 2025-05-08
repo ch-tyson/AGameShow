@@ -32,12 +32,9 @@ namespace LLMUnitySamples
             new Question("What is 1 + 1?", new string[] {"6", "11", "2", "4"}, 2),
             new Question("What shape has four sides?", new string[] {"Square", "Triangle", "Circle", "Hexagon"}, 0),
             new Question("Which of the following is a mammal?", new string[] {"Spider", "Crocodile", "Otter", "Eagle"}, 2),
-            new Question("What subject is the most creative?", new string[] {"History", "Math", "Art", "Social Studies"}, 2),
+            new Question("What subject is the most creative?", new string[] {"History", "Math", "Art", "English"}, 2),
             new Question("Which of the following has four legs?", new string[] {"Seal", "Cassowary", "Dog", "Centipede"}, 2),
-            new Question("How many days are in a week?", new string[] {"5", "99999999999", "2", "7"}, 3),
-            new Question("Which is the correct horse?", new string[] {"Honse", "Hawrse", "Horse", "Horsey"}, 2),
-            new Question("Which is the correct 7?", new string[] {"7", "7", "7", "7"}, 0),
-            new Question("Who are you saving if you saw your loved ones tied to separate train tracks?", new string[] {"Loved one A", "Loved one B"}, 0)
+            new Question("Which of these is real?", new[] { "Dumbledore", "Taxes", "GPA", "Dragon" }, 2)
         }
         };
 
